@@ -1,11 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 import { randomUUID } from "crypto";
-import type { Attributes } from "../db/models/fileStorage";
-import type { ResJSON } from "../type";
-import fileStorage from "../db/usecases/fileStorage";
-import type { CountStorage, Row } from "../db/type";
-import { enumFile } from "../helpers/enum";
+import type { ResJSON } from "src/type";
+import fileStorage from "@usecases/fileStorage";
+import type { Attributes } from "@model/fileStorage";
+import type { CountStorage, Row } from "@type/fileStorage";
+import { enumFile } from "@helper/enum";
 
 export default {
   createFolder: async (req: Request, res: Response<ResJSON>, next: NextFunction): Promise<void> => {

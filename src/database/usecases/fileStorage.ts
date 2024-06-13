@@ -1,10 +1,10 @@
 import type { WhereOptions } from "sequelize";
 import { Op } from "sequelize";
-import type { CountStorage, FileStorage, FindAndCountAll, ListSlider } from "../type";
 import type { Request } from "express";
-import { enumFile } from "../../helpers/enum";
-import type { Attributes } from "../models/fileStorage";
-import fileStorage from "../repository/fileStorage";
+import type { Attributes } from "@model/fileStorage";
+import type { CountStorage, FileStorage, FindAndCountAll, ListSlider } from "@type/fileStorage";
+import { enumFile } from "@helper/enum";
+import fileStorage from "@repository/fileStorage";
 
 export default {
   create: async (payload: Attributes): Promise<void> => {

@@ -1,5 +1,5 @@
 import type { WhereOptions } from "sequelize";
-import type { Pagination } from "../type";
+import type { Pagination } from "src/type";
 
 export type FileStorage = {
   id: string;

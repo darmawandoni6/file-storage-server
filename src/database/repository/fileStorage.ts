@@ -1,7 +1,7 @@
-import db from "../driver/sqlite";
-import { type Attributes } from "../models/fileStorage";
-import type { FindAndCountAll, List, Slider } from "../type";
-import { Transaction } from "sequelize";
+import db from "@driver/sqlite";
+import type { Attributes } from "@model/fileStorage";
+import type { FindAndCountAll, List, Slider } from "@type/fileStorage";
+import type { Transaction } from "sequelize";
 
 export default {
   create: async (payload: Attributes, transaction?: Transaction): Promise<void> => {

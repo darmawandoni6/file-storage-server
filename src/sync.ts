@@ -1,6 +1,6 @@
+import db from "@driver/sqlite";
 import "dotenv/config";
 
-import db from "./db/driver/sqlite";
 import { DataTypes } from "sequelize";
 
 const queryInterface = db.sequelize.getQueryInterface();

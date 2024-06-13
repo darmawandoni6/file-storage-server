@@ -1,4 +1,7 @@
 {
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  },
   "compilerOptions": {
     "target": "es2016",
     "module": "commonjs",
@@ -8,7 +11,18 @@
     "sourceMap": true,
     "outDir": "dist",
     "strict": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": "./",
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@controller/*": ["src/controllers/*"],
+      "@driver/*": ["src/database/driver/*"],
+      "@model/*": ["src/database/models/*"],
+      "@repository/*": ["src/database/repository/*"],
+      "@type/*": ["src/database/type/*"],
+      "@usecases/*": ["src/database/usecases/*"],
+      "@helper/*": ["src/helpers/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

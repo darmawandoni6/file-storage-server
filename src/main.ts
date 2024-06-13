@@ -1,7 +1,7 @@
 import "dotenv/config";
 
+import db from "@driver/sqlite";
 import { app, message, port } from "./app";
-import db from "./db/driver/sqlite";
 
 db.sequelize
   .sync()

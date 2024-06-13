@@ -1,6 +1,6 @@
+import type { FileStorage } from "@type/fileStorage";
 import type { Model, Optional, Sequelize } from "sequelize";
 import { DataTypes } from "sequelize";
-import type { FileStorage } from "../type";
 
 type Attributes = Optional<FileStorage, "file" | "type" | "size" | "folder" | "archived" | "star">;
 

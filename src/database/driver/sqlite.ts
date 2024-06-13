@@ -1,9 +1,9 @@
+import fileStorage from "@model/fileStorage";
 import { Sequelize } from "sequelize";
-import fileStorage from "../models/fileStorage";
 
 const sequelize = new Sequelize({
   dialect: "sqlite",
-  storage: `./${process.env.ENV}.sqlite3`,
+  storage: `./${process.env.DATABASE}.sqlite3`,
 });
 
 const db = {

@@ -4,13 +4,13 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import createHttpError from "http-errors";
 import logger from "morgan";
-import { errorHandler } from "./middleware/errorHandler";
 import fileStorage from "./routes/fileStorage";
+import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
 
-const port = process.env.PORT || 4000;
-const message = `[Server]: I am running mode ${process.env.ENV} at http://localhost:${port}`;
+const port = Number(process.env.PORT) || 4000;
+const message = `[Server]: I am running mode ${process.env.NODE_ENV} at http://localhost:${port}`;
 
 app.use(
   cors({
