@@ -10,7 +10,11 @@
     "build": "rm -rf dist && tsc",
     "lint": "./node_modules/.bin/eslint src/app/index.ts"
   },
-  "keywords": [],
+  "keywords": [
+    "File Storage",
+    "express",
+    "typescript"
+  ],
   "author": "darmawandoni6@gmail.com",
   "license": "ISC",
   "dependencies": {
