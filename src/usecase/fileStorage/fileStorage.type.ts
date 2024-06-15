@@ -1,6 +1,3 @@
-// import type { WhereOptions } from "sequelize";
-// import type { Pagination } from "src/type";
-
 import type { WhereOptions } from "sequelize";
 import type { Pagination } from "src/type";
 
@@ -14,12 +11,6 @@ export type FileStorage = {
   archived: boolean;
   star: boolean;
 };
-
-// export type FileStorageFolder = {
-//   id: string;
-//   name: string;
-//   folder?: string;
-// };
 
 export type List = {
   recent?: boolean;

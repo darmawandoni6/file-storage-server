@@ -2,17 +2,21 @@ import db from "@driver/index";
 import type { Attributes } from "./fileStorage.model";
 import type { FindAndCountAll, List, Slider } from "@usecase/fileStorage/fileStorage.type";
 
-export default {
-  create: async (payload: Attributes): Promise<void> => {
+class Repository {
+  private db = db.fileStorage;
+
+  async create(payload: Attributes): Promise<void> {
     try {
-      await db.fileStorage.create(payload);
+      await this.db.create(payload);
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-  findAndCountAll: async ({ recent, where, limit, offset }: List): Promise<FindAndCountAll> => {
+  }
+  async findAndCountAll(list: List): Promise<FindAndCountAll> {
     try {
-      const { count, rows } = await db.fileStorage.findAndCountAll({
+      const { recent, where, limit, offset } = list;
+
+      const { count, rows } = await this.db.findAndCountAll({
         where,
         order: recent
           ? [["updatedAt", "DESC"]]
@@ -36,30 +40,28 @@ export default {
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-  findOneView: async (id: string): Promise<Buffer | null> => {
+  }
+  async findOneView(id: string): Promise<Buffer | null> {
     try {
-      const res = await db.fileStorage.findOne({
+      const res = await this.db.findOne({
         where: { id },
       });
       return res ? (res.file as Buffer) : null;
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-  count: async (where: List["where"]): Promise<number> => {
+  }
+  async count(where: List["where"]): Promise<number> {
     try {
-      const res = await db.fileStorage.count({
-        where,
-      });
+      const res = await this.db.count({ where });
       return res;
     } catch (error) {
       return Promise.resolve(0);
     }
-  },
-  listSlider: async (where: List["where"]): Promise<Slider[]> => {
+  }
+  async listSlider(where: List["where"]): Promise<Slider[]> {
     try {
-      const res = await db.fileStorage.findAll({
+      const res = await this.db.findAll({
         where,
         attributes: [
           "id",
@@ -93,27 +95,29 @@ export default {
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-  update: async (where: List["where"], payload: Partial<Attributes>): Promise<void> => {
+  }
+  async update(payload: Partial<Attributes>, where: List["where"]): Promise<void> {
     try {
-      await db.fileStorage.update(payload, { where });
+      await this.db.update(payload, { where });
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-  remove: async (id: string): Promise<void> => {
+  }
+  async remove(id: string): Promise<void> {
     try {
-      await db.fileStorage.destroy({ where: { id } });
+      await this.db.destroy({ where: { id } });
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-  sumFile: async (): Promise<number> => {
+  }
+  async sumFile(): Promise<number> {
     try {
-      const res = await db.fileStorage.sum("size");
+      const res = await this.db.sum("size");
       return res;
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-};
+  }
+}
+
+export default Repository;

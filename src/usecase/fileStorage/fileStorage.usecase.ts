@@ -1,135 +1,168 @@
-import type { WhereOptions } from "sequelize";
 import { Op } from "sequelize";
 import type { Request } from "express";
 import { enumFile } from "@helper/enum";
-import fileStorageRepository from "@database/fileStorage/fileStorage.repository";
-import type { Attributes } from "@database/fileStorage/fileStorage.model";
-import type { CountStorage, FileStorage, FindAndCountAll, ListSlider } from "./fileStorage.type";
 
-export default {
-  create: async (payload: Attributes): Promise<void> => {
+import type { Attributes } from "@database/fileStorage/fileStorage.model";
+import type { CountStorage, FindAndCountAll, List, ListSlider } from "./fileStorage.type";
+import Repository from "@database/fileStorage/fileStorage.repository";
+
+class Usecases {
+  private repository = new Repository();
+  attributes: Attributes = {
+    id: "",
+    name: "",
+  };
+  query: Request["query"] = {};
+  list: List = {
+    where: {},
+    limit: 0,
+    offset: 0,
+    recent: false,
+  };
+
+  async create(): Promise<void> {
     try {
-      await fileStorageRepository.create(payload);
+      await this.repository.create(this.attributes);
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-  findAndCountAll: async (request: Request["query"]): Promise<FindAndCountAll> => {
-    try {
-      let { page, perPage } = request;
-      const { filter, open, archived, recent, star } = request;
+  }
 
-      if (!page) page = "1";
-      if (!perPage) perPage = "10";
+  pagination(): { page: number; perPage: number; limit: number; offset: number } {
+    let { page, perPage } = this.query;
+    if (!page) page = "1";
+    if (!perPage) perPage = "10";
 
-      let where: WhereOptions<FileStorage> = {
-        folder: {
-          [Op.is]: undefined,
-        },
-      };
+    const limit = Number(perPage);
+    return {
+      page: Number(page),
+      perPage: Number(page),
+      limit,
+      offset: (Number(page) - 1) * limit,
+    };
+  }
 
-      switch (filter) {
-        case enumFile.folder:
-          where = {
-            folder: {
-              [Op.is]: undefined,
-            },
-            file: {
-              [Op.is]: undefined,
-            },
-          };
-
-          break;
-        case enumFile.document:
-          where = {
-            [Op.or]: [
-              {
-                type: {
-                  [Op.startsWith]: "application/",
-                },
-              },
-              {
-                type: {
-                  [Op.startsWith]: "text/",
-                },
-              },
-            ],
-          };
-          break;
-        case enumFile.image:
-          where = {
-            type: {
-              [Op.startsWith]: "image/",
-            },
-          };
-          break;
-        case enumFile.video:
-          where = {
-            type: {
-              [Op.startsWith]: "video/",
-            },
-          };
-          break;
-        case enumFile.audio:
-          where = {
-            type: {
-              [Op.startsWith]: "audio/",
-            },
-          };
-          break;
-        default:
-          break;
-      }
-
-      if (open) {
+  switchFilter() {
+    let where: List["where"] = {};
+    switch (this.query.filter) {
+      case enumFile.folder:
         where = {
-          folder: open as string,
-        };
-      }
-
-      if (recent) {
-        where = {
+          folder: {
+            [Op.is]: undefined,
+          },
           file: {
-            [Op.ne]: "",
+            [Op.is]: undefined,
           },
         };
-      }
 
-      if (star) {
-        where = Object.assign(where, { star: star === "true" });
-      }
+        break;
+      case enumFile.document:
+        where = {
+          [Op.or]: [
+            {
+              type: {
+                [Op.startsWith]: "application/",
+              },
+            },
+            {
+              type: {
+                [Op.startsWith]: "text/",
+              },
+            },
+          ],
+        };
+        break;
+      case enumFile.image:
+        where = {
+          type: {
+            [Op.startsWith]: "image/",
+          },
+        };
+        break;
+      case enumFile.video:
+        where = {
+          type: {
+            [Op.startsWith]: "video/",
+          },
+        };
+        break;
+      case enumFile.audio:
+        where = {
+          type: {
+            [Op.startsWith]: "audio/",
+          },
+        };
+        break;
+      default:
+        where = {
+          folder: {
+            [Op.is]: undefined,
+          },
+        };
+        break;
+    }
 
-      where = Object.assign(where, { archived: archived === "true" });
+    this.list.where = where;
+  }
+  otherFilter() {
+    const { open, archived, recent, star } = this.query;
+    let where: List["where"] = this.list.where;
 
-      const { count, rows } = await fileStorageRepository.findAndCountAll({
+    if (open) {
+      where = {
+        folder: open as string,
+      };
+    }
+
+    if (recent) {
+      where = {
+        file: {
+          [Op.ne]: "",
+        },
+      };
+    }
+
+    if (star) {
+      where = Object.assign(where, { star: star === "true" });
+    }
+    this.list.where = Object.assign(where, { archived: archived === "true" });
+  }
+  async findAndCountAll(): Promise<FindAndCountAll> {
+    try {
+      const { page, perPage, limit, offset } = this.pagination();
+      this.switchFilter();
+      this.otherFilter();
+      const { recent } = this.query;
+
+      const { count, rows } = await this.repository.findAndCountAll({
         recent: !!recent,
-        where,
-        limit: parseInt(perPage as string, 10),
-        offset: (parseInt(page as string, 10) - 1) * parseInt(perPage as string, 10),
+        where: this.list.where,
+        limit,
+        offset,
       });
       return {
         rows,
         count,
         meta: {
-          page: parseInt(page as string, 10),
-          perPage: parseInt(perPage as string, 10),
-          lastPage: Math.ceil(count / parseInt(perPage as string, 10)),
+          page,
+          perPage,
+          lastPage: Math.ceil(count / perPage),
           count,
         },
       };
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-  findOneView: async (id: string): Promise<Buffer | null> => {
+  }
+  async findOneView(id: string): Promise<Buffer | null> {
     try {
-      const res = await fileStorageRepository.findOneView(id);
+      const res = await this.repository.findOneView(id);
       return res;
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-  countStorage: async (types: enumFile[]): Promise<CountStorage> => {
+  }
+  async countStorage(types: enumFile[]): Promise<CountStorage> {
     try {
       const payload: CountStorage = {
         folder: 0,
@@ -139,65 +172,13 @@ export default {
         audio: 0,
       };
 
-      const defWhere: WhereOptions<FileStorage> = {
-        archived: false,
-      };
-      let where: WhereOptions<FileStorage> = {};
-
       for (const type of types) {
-        switch (type) {
-          case enumFile.folder:
-            where = {
-              file: {
-                [Op.is]: undefined,
-              },
-              folder: {
-                [Op.is]: undefined,
-              },
-            };
-            break;
-          case enumFile.document:
-            where = {
-              [Op.or]: [
-                {
-                  type: {
-                    [Op.startsWith]: "application/",
-                  },
-                },
-                {
-                  type: {
-                    [Op.startsWith]: "text/",
-                  },
-                },
-              ],
-            };
-            break;
-          case enumFile.image:
-            where = {
-              type: {
-                [Op.startsWith]: "image/",
-              },
-            };
-            break;
-          case enumFile.audio:
-            where = {
-              type: {
-                [Op.startsWith]: "audio/",
-              },
-            };
-            break;
-          case enumFile.video:
-            where = {
-              type: {
-                [Op.startsWith]: "video/",
-              },
-            };
-            break;
-          default:
-            break;
-        }
-        where = Object.assign(where, defWhere);
-        const r = await fileStorageRepository.count(where);
+        this.switchFilter();
+        let where = this.list.where;
+        where = Object.assign(where, {
+          archived: false,
+        });
+        const r = await this.repository.count(where);
         payload[type] = r;
       }
 
@@ -205,17 +186,20 @@ export default {
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-
-  listSlider: async (): Promise<ListSlider> => {
+  }
+  async listSlider(): Promise<ListSlider> {
     try {
-      const wFolder: WhereOptions<FileStorage> = {
+      let where = this.list.where;
+
+      where = {
         file: {
           [Op.is]: undefined,
         },
         archived: false,
       };
-      const wDocument: WhereOptions<FileStorage> = {
+      const vFolder = await this.repository.listSlider(where);
+
+      where = {
         [Op.or]: [
           {
             type: {
@@ -230,10 +214,7 @@ export default {
         ],
         archived: false,
       };
-
-      const vFolder = await fileStorageRepository.listSlider(wFolder);
-
-      const vDocument = await fileStorageRepository.listSlider(wDocument);
+      const vDocument = await this.repository.listSlider(where);
 
       return {
         folder: vFolder.map((item) => ({
@@ -247,31 +228,34 @@ export default {
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-  update: async (id: string, payload: Partial<Attributes>, folder?: string): Promise<void> => {
+  }
+  async update(id: string, folder?: string): Promise<void> {
     try {
       if (folder) {
-        await fileStorageRepository.update({ folder }, payload);
+        this.list.where = { folder };
+      } else {
+        this.list.where = { id };
       }
-
-      await fileStorageRepository.update({ id }, payload);
+      await this.repository.update(this.attributes, this.list.where);
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-  remove: async (id: string): Promise<void> => {
+  }
+  async remove(id: string): Promise<void> {
     try {
-      await fileStorageRepository.remove(id);
+      await this.repository.remove(id);
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-  sumFile: async (): Promise<number> => {
+  }
+  async sumFile(): Promise<number> {
     try {
-      const res = await fileStorageRepository.sumFile();
+      const res = await this.repository.sumFile();
       return res;
     } catch (error) {
       return Promise.reject(error);
     }
-  },
-};
+  }
+}
+
+export default Usecases;

@@ -1,19 +1,31 @@
-import express from "express";
-import { upload } from "../middleware/multer";
-import fileStorage from "@controller/fileStorage";
+import { upload } from "@app/middleware/multer";
+import Controllers from "@controller/fileStorage";
+import { Router } from "express";
 
-const router = express.Router();
-router.post("/file", upload.single("file"), fileStorage.createFile);
-router.post("/folder", fileStorage.createFolder);
+class Routes {
+  router: Router;
+  c = new Controllers();
 
-router.put("/file/:id", fileStorage.update);
+  constructor() {
+    this.router = Router();
 
-router.delete("/file/:id", fileStorage.remove);
+    this.routes();
+  }
 
-router.get("/count", fileStorage.countStorage);
-router.get("/list", fileStorage.findAndCountAll);
-router.get("/file/:id", fileStorage.findOneView);
-router.get("/list/slider", fileStorage.listSlider);
-router.get("/sum-file", fileStorage.sumFile);
+  routes() {
+    this.router.post("/file", upload.single("file"), this.c.createFile.bind(this.c));
+    this.router.post("/folder", this.c.createFolder.bind(this.c));
 
-export default { router };
+    this.router.put("/file/:id", this.c.update.bind(this.c));
+
+    this.router.delete("/file/:id", this.c.remove.bind(this.c));
+
+    this.router.get("/count", this.c.countStorage.bind(this.c));
+    this.router.get("/list", this.c.findAndCountAll.bind(this.c));
+    this.router.get("/file/:id", this.c.findOneView.bind(this.c));
+    this.router.get("/list/slider", this.c.listSlider.bind(this.c));
+    this.router.get("/sum-file", this.c.sumFile.bind(this.c));
+  }
+}
+
+export default { router: new Routes().router };

@@ -1,22 +1,24 @@
 import type { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 import { randomUUID } from "crypto";
-import type { ResJSON } from "src/type";
 import { enumFile } from "@helper/enum";
 import type { CountStorage, FileStorage, ListSlider } from "@usecase/fileStorage/fileStorage.type";
-import type { Attributes } from "@database/fileStorage/fileStorage.model";
-import fileStorageUsecase from "@usecase/fileStorage/fileStorage.usecase";
+import type { ResJSON } from "src/type";
+import Usecases from "@usecase/fileStorage/fileStorage.usecase";
 
-export default {
-  createFolder: async (req: Request, res: Response<ResJSON>, next: NextFunction): Promise<void> => {
+class Controllers {
+  private uc = new Usecases();
+
+  async createFolder(req: Request, res: Response<ResJSON>, next: NextFunction): Promise<void> {
     try {
       const { body } = req;
 
-      await fileStorageUsecase.create({
+      this.uc.attributes = {
         id: randomUUID(),
         name: body.folder,
         folder: body.sub,
-      });
+      };
+      await this.uc.create();
 
       res.send({
         status: 200,
@@ -26,8 +28,8 @@ export default {
     } catch (error) {
       next(error);
     }
-  },
-  createFile: async (req: Request, res: Response<ResJSON>, next: NextFunction): Promise<void> => {
+  }
+  async createFile(req: Request, res: Response<ResJSON>, next: NextFunction): Promise<void> {
     try {
       if (!req.file) throw createHttpError.NotFound("Error file");
 
@@ -36,7 +38,7 @@ export default {
 
       const { file, body } = req;
 
-      const payload: Attributes = {
+      this.uc.attributes = {
         id: name,
         file: file.buffer,
         name: file.originalname,
@@ -45,7 +47,7 @@ export default {
         folder: body.folder,
       };
 
-      await fileStorageUsecase.create(payload);
+      await this.uc.create();
 
       res.send({
         status: 200,
@@ -55,10 +57,11 @@ export default {
     } catch (error) {
       next(error);
     }
-  },
-  findAndCountAll: async (req: Request, res: Response<ResJSON<FileStorage[]>>, next: NextFunction): Promise<void> => {
+  }
+  async findAndCountAll(req: Request, res: Response<ResJSON<FileStorage[]>>, next: NextFunction): Promise<void> {
     try {
-      const data = await fileStorageUsecase.findAndCountAll(req.query);
+      this.uc.query = req.query;
+      const data = await this.uc.findAndCountAll();
 
       res.send({
         status: 200,
@@ -69,20 +72,20 @@ export default {
     } catch (error) {
       next(error);
     }
-  },
-  findOneView: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  }
+  async findOneView(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
 
-      const file = await fileStorageUsecase.findOneView(id);
+      const file = await this.uc.findOneView(id);
       res.end(file);
     } catch (error) {
       next(error);
     }
-  },
-  countStorage: async (_req: Request, res: Response<ResJSON<CountStorage>>, next: NextFunction): Promise<void> => {
+  }
+  async countStorage(_req: Request, res: Response<ResJSON<CountStorage>>, next: NextFunction): Promise<void> {
     try {
-      const count = await fileStorageUsecase.countStorage(Object.keys(enumFile).map((item) => item as enumFile));
+      const count = await this.uc.countStorage(Object.keys(enumFile).map((item) => item as enumFile));
       res.send({
         status: 200,
         data: count,
@@ -91,10 +94,10 @@ export default {
     } catch (error) {
       next(error);
     }
-  },
-  listSlider: async (_req: Request, res: Response<ResJSON<ListSlider>>, next: NextFunction): Promise<void> => {
+  }
+  async listSlider(_req: Request, res: Response<ResJSON<ListSlider>>, next: NextFunction): Promise<void> {
     try {
-      const { folder, document } = await fileStorageUsecase.listSlider();
+      const { folder, document } = await this.uc.listSlider();
 
       res.send({
         status: 200,
@@ -107,14 +110,15 @@ export default {
     } catch (error) {
       next(error);
     }
-  },
-  update: async (req: Request, res: Response<ResJSON>, next: NextFunction): Promise<void> => {
+  }
+  async update(req: Request, res: Response<ResJSON>, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
       let { folder } = req.query;
       folder = (folder as string) ?? undefined;
 
-      await fileStorageUsecase.update(id, req.body, folder);
+      this.uc.attributes = req.body;
+      await this.uc.update(id, folder);
       res.send({
         status: 200,
         data: null,
@@ -123,11 +127,11 @@ export default {
     } catch (error) {
       next(error);
     }
-  },
-  remove: async (req: Request, res: Response<ResJSON>, next: NextFunction): Promise<void> => {
+  }
+  async remove(req: Request, res: Response<ResJSON>, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
-      await fileStorageUsecase.remove(id);
+      await this.uc.remove(id);
       res.send({
         status: 200,
         data: null,
@@ -136,10 +140,10 @@ export default {
     } catch (error) {
       next(error);
     }
-  },
-  sumFile: async (req: Request, res: Response<ResJSON<number>>, next: NextFunction): Promise<void> => {
+  }
+  async sumFile(req: Request, res: Response<ResJSON<number>>, next: NextFunction): Promise<void> {
     try {
-      const data = await fileStorageUsecase.sumFile();
+      const data = await this.uc.sumFile();
       res.send({
         status: 200,
         data: data,
@@ -148,5 +152,7 @@ export default {
     } catch (error) {
       next(error);
     }
-  },
-};
+  }
+}
+
+export default Controllers;
