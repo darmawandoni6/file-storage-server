@@ -1,6 +1,6 @@
 import express from "express";
 import { upload } from "../middleware/multer";
-import fileStorage from "../../controllers/fileStorage";
+import fileStorage from "@controller/fileStorage";
 
 const router = express.Router();
 router.post("/file", upload.single("file"), fileStorage.createFile);
@@ -14,5 +14,6 @@ router.get("/count", fileStorage.countStorage);
 router.get("/list", fileStorage.findAndCountAll);
 router.get("/file/:id", fileStorage.findOneView);
 router.get("/list/slider", fileStorage.listSlider);
+router.get("/sum-file", fileStorage.sumFile);
 
 export default { router };

@@ -1,4 +1,4 @@
-import db from "@driver/sqlite";
+import db from "@driver/index";
 import "dotenv/config";
 
 import { DataTypes } from "sequelize";

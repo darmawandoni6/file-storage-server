@@ -2,17 +2,17 @@ import type { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 import { randomUUID } from "crypto";
 import type { ResJSON } from "src/type";
-import fileStorage from "@usecases/fileStorage";
-import type { Attributes } from "@model/fileStorage";
-import type { CountStorage, Row } from "@type/fileStorage";
 import { enumFile } from "@helper/enum";
+import type { CountStorage, FileStorage, ListSlider } from "@usecase/fileStorage/fileStorage.type";
+import type { Attributes } from "@database/fileStorage/fileStorage.model";
+import fileStorageUsecase from "@usecase/fileStorage/fileStorage.usecase";
 
 export default {
   createFolder: async (req: Request, res: Response<ResJSON>, next: NextFunction): Promise<void> => {
     try {
       const { body } = req;
 
-      await fileStorage.create({
+      await fileStorageUsecase.create({
         id: randomUUID(),
         name: body.folder,
         folder: body.sub,
@@ -45,7 +45,7 @@ export default {
         folder: body.folder,
       };
 
-      await fileStorage.create(payload);
+      await fileStorageUsecase.create(payload);
 
       res.send({
         status: 200,
@@ -56,9 +56,9 @@ export default {
       next(error);
     }
   },
-  findAndCountAll: async (req: Request, res: Response<ResJSON<Row[]>>, next: NextFunction): Promise<void> => {
+  findAndCountAll: async (req: Request, res: Response<ResJSON<FileStorage[]>>, next: NextFunction): Promise<void> => {
     try {
-      const data = await fileStorage.findAndCountAll(req.query);
+      const data = await fileStorageUsecase.findAndCountAll(req.query);
 
       res.send({
         status: 200,
@@ -74,7 +74,7 @@ export default {
     try {
       const { id } = req.params;
 
-      const file = await fileStorage.findOneView(id);
+      const file = await fileStorageUsecase.findOneView(id);
       res.end(file);
     } catch (error) {
       next(error);
@@ -82,7 +82,7 @@ export default {
   },
   countStorage: async (_req: Request, res: Response<ResJSON<CountStorage>>, next: NextFunction): Promise<void> => {
     try {
-      const count = await fileStorage.countStorage(Object.keys(enumFile).map((item) => item as enumFile));
+      const count = await fileStorageUsecase.countStorage(Object.keys(enumFile).map((item) => item as enumFile));
       res.send({
         status: 200,
         data: count,
@@ -92,9 +92,9 @@ export default {
       next(error);
     }
   },
-  listSlider: async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  listSlider: async (_req: Request, res: Response<ResJSON<ListSlider>>, next: NextFunction): Promise<void> => {
     try {
-      const { folder, document } = await fileStorage.listSlider();
+      const { folder, document } = await fileStorageUsecase.listSlider();
 
       res.send({
         status: 200,
@@ -108,30 +108,42 @@ export default {
       next(error);
     }
   },
-  update: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  update: async (req: Request, res: Response<ResJSON>, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
       let { folder } = req.query;
       folder = (folder as string) ?? undefined;
 
-      await fileStorage.update(id, req.body, folder);
+      await fileStorageUsecase.update(id, req.body, folder);
       res.send({
         status: 200,
         data: null,
-        message: "",
+        message: "success",
       });
     } catch (error) {
       next(error);
     }
   },
-  remove: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  remove: async (req: Request, res: Response<ResJSON>, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
-      await fileStorage.remove(id);
+      await fileStorageUsecase.remove(id);
       res.send({
         status: 200,
         data: null,
-        message: "",
+        message: "success",
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  sumFile: async (req: Request, res: Response<ResJSON<number>>, next: NextFunction): Promise<void> => {
+    try {
+      const data = await fileStorageUsecase.sumFile();
+      res.send({
+        status: 200,
+        data: data,
+        message: "success",
       });
     } catch (error) {
       next(error);

@@ -18,7 +18,12 @@ declare global {
       [key: string]: string | undefined;
       PORT: string;
       NODE_ENV: string;
-      DATABASE: string;
+      DATABASE_HOST: string;
+      DATABASE_NAME: string;
+      DATABASE_PORT: string;
+      DATABASE_USER: string;
+      DATABASE_PASSWORD: string;
+      DATABASE_URL: string;
     }
   }
 }

@@ -16,12 +16,10 @@
     "paths": {
       "@app/*": ["src/app/*"],
       "@controller/*": ["src/controllers/*"],
-      "@driver/*": ["src/database/driver/*"],
-      "@model/*": ["src/database/models/*"],
-      "@repository/*": ["src/database/repository/*"],
-      "@type/*": ["src/database/type/*"],
-      "@usecases/*": ["src/database/usecases/*"],
-      "@helper/*": ["src/helpers/*"]
+      "@helper/*": ["src/helpers/*"],
+      "@database/*": ["src/repository/databases/*"],
+      "@driver/*": ["src/repository/driver/*"],
+      "@usecase/*": ["src/usecase/*"]
     }
   },
   "include": ["src/**/*"],
