@@ -10,6 +10,7 @@ export type FileStorage = {
   folder: string;
   archived: boolean;
   star: boolean;
+  email: string;
 };
 
 export type List = {

@@ -11,6 +11,7 @@ class Usecases {
   attributes: Attributes = {
     id: "",
     name: "",
+    email: "",
   };
   query: Request["query"] = {};
   list: List = {
@@ -19,6 +20,8 @@ class Usecases {
     offset: 0,
     recent: false,
   };
+  email = "";
+  constructor() {}
 
   async create(): Promise<void> {
     try {
@@ -136,7 +139,7 @@ class Usecases {
 
       const { count, rows } = await this.repository.findAndCountAll({
         recent: !!recent,
-        where: this.list.where,
+        where: Object.assign(this.list.where, { email: this.email }),
         limit,
         offset,
       });
@@ -156,7 +159,7 @@ class Usecases {
   }
   async findOneView(id: string): Promise<Buffer | null> {
     try {
-      const res = await this.repository.findOneView(id);
+      const res = await this.repository.findOneView({ id, email: this.email });
       return res;
     } catch (error) {
       return Promise.reject(error);
@@ -177,6 +180,7 @@ class Usecases {
         let where = this.list.where;
         where = Object.assign(where, {
           archived: false,
+          email: this.email,
         });
         const r = await this.repository.count(where);
         payload[type] = r;
@@ -196,6 +200,7 @@ class Usecases {
           [Op.is]: undefined,
         },
         archived: false,
+        email: this.email,
       };
       const vFolder = await this.repository.listSlider(where);
 
@@ -213,6 +218,7 @@ class Usecases {
           },
         ],
         archived: false,
+        email: this.email,
       };
       const vDocument = await this.repository.listSlider(where);
 
@@ -236,21 +242,21 @@ class Usecases {
       } else {
         this.list.where = { id };
       }
-      await this.repository.update(this.attributes, this.list.where);
+      await this.repository.update(this.attributes, Object.assign(this.list.where, { email: this.email }));
     } catch (error) {
       return Promise.reject(error);
     }
   }
   async remove(id: string): Promise<void> {
     try {
-      await this.repository.remove(id);
+      await this.repository.remove({ id, email: this.email });
     } catch (error) {
       return Promise.reject(error);
     }
   }
   async sumFile(): Promise<number> {
     try {
-      const res = await this.repository.sumFile();
+      const res = await this.repository.sumFile(this.email);
       return res;
     } catch (error) {
       return Promise.reject(error);

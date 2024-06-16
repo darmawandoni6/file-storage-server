@@ -41,10 +41,10 @@ class Repository {
       return Promise.reject(error);
     }
   }
-  async findOneView(id: string): Promise<Buffer | null> {
+  async findOneView(where: List["where"]): Promise<Buffer | null> {
     try {
       const res = await this.db.findOne({
-        where: { id },
+        where,
       });
       return res ? (res.file as Buffer) : null;
     } catch (error) {
@@ -103,16 +103,16 @@ class Repository {
       return Promise.reject(error);
     }
   }
-  async remove(id: string): Promise<void> {
+  async remove(where: List["where"]): Promise<void> {
     try {
-      await this.db.destroy({ where: { id } });
+      await this.db.destroy({ where });
     } catch (error) {
       return Promise.reject(error);
     }
   }
-  async sumFile(): Promise<number> {
+  async sumFile(email: string): Promise<number> {
     try {
-      const res = await this.db.sum("size");
+      const res = await this.db.sum("size", { where: { email } });
       return res;
     } catch (error) {
       return Promise.reject(error);

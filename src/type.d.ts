@@ -24,6 +24,8 @@ declare global {
       DATABASE_USER: string;
       DATABASE_PASSWORD: string;
       DATABASE_URL: string;
+      ACCESS_TOKEN: string;
+      EXP_TOKEN: string;
     }
   }
 }

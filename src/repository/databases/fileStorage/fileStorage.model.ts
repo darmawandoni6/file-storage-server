@@ -46,6 +46,10 @@ export default {
           type: DataTypes.BOOLEAN,
           defaultValue: false,
         },
+        email: {
+          allowNull: false,
+          type: DataTypes.STRING,
+        },
       },
       {
         freezeTableName: true,

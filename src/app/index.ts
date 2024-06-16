@@ -6,6 +6,8 @@ import createHttpError from "http-errors";
 import logger from "morgan";
 import fileStorage from "./routes/fileStorage";
 import { errorHandler } from "./middleware/errorHandler";
+import user from "./routes/user";
+import jwt from "@helper/jwt";
 
 const app = express();
 
@@ -27,7 +29,8 @@ app.get("/", (req, res) => {
   res.send({ message });
 });
 
-app.use("/api-v1", fileStorage.router);
+app.use("/api-v1", user.router);
+app.use("/api-v1", jwt.verifyAccessToken, fileStorage.router);
 
 app.use((req, res, next) => {
   next(createHttpError.NotFound());
