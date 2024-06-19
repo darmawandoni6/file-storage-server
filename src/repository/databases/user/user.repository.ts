@@ -20,6 +20,13 @@ class Repository {
       return Promise.reject(error);
     }
   }
+  async update(payload: Partial<Attributes>, where: WhereOptions<Attributes>) {
+    try {
+      await this.db.update(payload, { where });
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
 }
 
 export default Repository;

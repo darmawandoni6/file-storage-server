@@ -60,6 +60,22 @@ class Usecases {
       return Promise.reject(error);
     }
   }
+  async profile() {
+    try {
+      const data = await this.repository.findOne(this.where);
+      return data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async update() {
+    try {
+      if (!this.attributes.password) this.attributes.password = undefined;
+      await this.repository.update(this.attributes, this.where);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
 }
 
 export default Usecases;

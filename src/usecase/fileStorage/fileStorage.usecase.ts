@@ -143,6 +143,7 @@ class Usecases {
         limit,
         offset,
       });
+
       return {
         rows,
         count,

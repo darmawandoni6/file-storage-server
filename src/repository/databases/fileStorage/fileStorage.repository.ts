@@ -4,6 +4,7 @@ import type { FindAndCountAll, List, Slider } from "@usecase/fileStorage/fileSto
 
 class Repository {
   private db = db.fileStorage;
+  private dbUser = db.user;
 
   async create(payload: Attributes): Promise<void> {
     try {
@@ -17,6 +18,12 @@ class Repository {
       const { recent, where, limit, offset } = list;
 
       const { count, rows } = await this.db.findAndCountAll({
+        include: [
+          {
+            model: this.dbUser,
+          },
+        ],
+
         where,
         order: recent
           ? [["updatedAt", "DESC"]]

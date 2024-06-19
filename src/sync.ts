@@ -23,7 +23,7 @@ db.sequelize
   .sync()
   .then(async () => {
     console.log("Synced db.");
-    await addColumn();
+    // await addColumn();
     await db.user.sync();
     await db.user.create({
       email: "darmawandoni6@gmail.com",
