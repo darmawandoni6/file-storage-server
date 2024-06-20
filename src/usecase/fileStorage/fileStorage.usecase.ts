@@ -39,15 +39,15 @@ class Usecases {
     const limit = Number(perPage);
     return {
       page: Number(page),
-      perPage: Number(page),
+      perPage: Number(perPage),
       limit,
       offset: (Number(page) - 1) * limit,
     };
   }
 
-  switchFilter() {
+  switchFilter(filter: string) {
     let where: List["where"] = {};
-    switch (this.query.filter) {
+    switch (filter) {
       case enumFile.folder:
         where = {
           folder: {
@@ -108,7 +108,7 @@ class Usecases {
     this.list.where = where;
   }
   otherFilter() {
-    const { open, archived, recent, star } = this.query;
+    const { open, archived, recent, star, search } = this.query;
     let where: List["where"] = this.list.where;
 
     if (open) {
@@ -125,17 +125,29 @@ class Usecases {
       };
     }
 
+    if (search) {
+      where = {
+        file: {
+          [Op.not]: "",
+        },
+        name: {
+          [Op.substring]: search as string,
+        },
+      };
+    }
     if (star) {
       where = Object.assign(where, { star: star === "true" });
     }
+
     this.list.where = Object.assign(where, { archived: archived === "true" });
   }
   async findAndCountAll(): Promise<FindAndCountAll> {
     try {
       const { page, perPage, limit, offset } = this.pagination();
-      this.switchFilter();
+
+      const { recent, filter } = this.query;
+      this.switchFilter(filter as string);
       this.otherFilter();
-      const { recent } = this.query;
 
       const { count, rows } = await this.repository.findAndCountAll({
         recent: !!recent,
@@ -177,7 +189,7 @@ class Usecases {
       };
 
       for (const type of types) {
-        this.switchFilter();
+        this.switchFilter(type);
         let where = this.list.where;
         where = Object.assign(where, {
           archived: false,
@@ -236,14 +248,17 @@ class Usecases {
       return Promise.reject(error);
     }
   }
-  async update(id: string, folder?: string): Promise<void> {
+  async update(id: string): Promise<void> {
     try {
-      if (folder) {
-        this.list.where = { folder };
-      } else {
-        this.list.where = { id };
+      const { oldName } = this.query;
+      if (oldName) {
+        await this.repository.update(
+          { folder: this.attributes.name },
+          { email: this.email, folder: oldName as string },
+        );
       }
-      await this.repository.update(this.attributes, Object.assign(this.list.where, { email: this.email }));
+
+      await this.repository.update(this.attributes, { id, email: this.email });
     } catch (error) {
       return Promise.reject(error);
     }

@@ -127,11 +127,11 @@ class Controllers {
     try {
       this.setEmail(res);
       const { id } = req.params;
-      let { folder } = req.query;
-      folder = (folder as string) ?? undefined;
 
+      this.uc.query = req.query;
       this.uc.attributes = req.body;
-      await this.uc.update(id, folder);
+
+      await this.uc.update(id);
       res.send({
         status: 200,
         data: null,
