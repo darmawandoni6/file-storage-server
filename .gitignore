@@ -2,3 +2,4 @@ dist
 node_modules
 development.sqlite3
 .env
+.vercel

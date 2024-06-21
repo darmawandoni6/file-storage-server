@@ -1,7 +1,7 @@
 {
   "name": "file-storage-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "API file storage",
   "main": "dist/main.js",
   "scripts": {
     "sync": "ENV=development ts-node src/sync.ts",
