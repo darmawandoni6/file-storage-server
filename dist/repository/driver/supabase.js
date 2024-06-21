@@ -28,6 +28,7 @@ const sequelize_1 = require("sequelize");
 const pg = __importStar(require("pg"));
 exports.sequelize = new sequelize_1.Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_USER, process.env.DATABASE_PASSWORD, {
     host: process.env.DATABASE_HOST,
+    dialect: "postgres",
     dialectModule: pg,
     pool: {
         max: 5,
