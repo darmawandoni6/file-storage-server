@@ -19,7 +19,6 @@ exports.default = {
             const { authorization } = req.headers;
             token = authorization;
         }
-        console.log({ req });
         if (!token) {
             next(http_errors_1.default.Unauthorized());
             return;
