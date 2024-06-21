@@ -20,6 +20,8 @@ export default {
       token = authorization;
     }
 
+    console.log({ req });
+
     if (!token) {
       next(createHttpError.Unauthorized());
       return;
