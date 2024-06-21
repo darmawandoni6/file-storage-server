@@ -13,7 +13,16 @@ export default {
     return token;
   },
   verifyAccessToken: (req: Request, res: Response, next: NextFunction) => {
-    const { token } = req.cookies;
+    let { token } = req.cookies;
+
+    if (!token) {
+      if (req.headers.cookie) {
+        const split = req.headers.cookie.split("=");
+        token = split[1];
+      }
+    }
+
+    console.log({ auth: req.headers });
 
     if (!token) {
       next(createHttpError.Unauthorized());
