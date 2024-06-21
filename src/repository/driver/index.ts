@@ -1,5 +1,5 @@
 import fileStorageModel from "@database/fileStorage/fileStorage.model";
-import { sequelize } from "./sqlite";
+import { sequelize } from "./supabase";
 import userModel from "@database/user/user.model";
 
 const db = {

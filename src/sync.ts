@@ -1,7 +1,6 @@
 import "dotenv/config";
 
 import db from "@driver/index";
-import bcrypt from "@helper/bcrypt";
 
 import { DataTypes } from "sequelize";
 
@@ -25,13 +24,7 @@ db.sequelize
     console.log("Synced db.");
     // await addColumn();
     await db.user.sync();
-    await db.user.create({
-      email: "darmawandoni6@gmail.com",
-      name: "Doni Darmawan",
-      password: bcrypt.encrypt("kiasu123"),
-    });
-
-    // await db.fileStorage.update({ email: "darmawandoni6@gmail.com" }, { where: { email: "" } });
+    await db.fileStorage.sync();
   })
   .catch((err) => {
     console.log("Failed to sync db: " + err.message);

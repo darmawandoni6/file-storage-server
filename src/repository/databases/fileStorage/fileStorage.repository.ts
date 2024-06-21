@@ -28,7 +28,7 @@ class Repository {
         order: recent
           ? [["updatedAt", "DESC"]]
           : [
-              ["type", "ASC"],
+              ["id", "ASC"],
               ["updatedAt", "DESC"],
             ],
         attributes: {
