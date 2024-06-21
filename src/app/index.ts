@@ -17,7 +17,7 @@ const message = `[Server]: I am running mode ${process.env.NODE_ENV} at http://l
 app.use(
   cors({
     credentials: true,
-    origin: true,
+    origin: "*",
   }),
 );
 app.use(logger("dev"));
