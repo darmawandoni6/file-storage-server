@@ -21,7 +21,7 @@ const message = `[Server]: I am running mode ${process.env.NODE_ENV} at http://l
 exports.message = message;
 app.use((0, cors_1.default)({
     credentials: true,
-    origin: "*",
+    origin: ["http://localhost:5173"],
 }));
 app.use((0, morgan_1.default)("dev"));
 app.use(express_1.default.json());
