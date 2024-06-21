@@ -22,6 +22,6 @@
       "@usecase/*": ["src/usecase/*"]
     }
   },
-  "include": ["api/*.ts", "src/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }

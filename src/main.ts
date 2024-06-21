@@ -11,8 +11,6 @@ const conection = async () => {
   }
 };
 
-console.log("0---------------0");
-
 app.listen(port, async () => {
   try {
     await conection();
