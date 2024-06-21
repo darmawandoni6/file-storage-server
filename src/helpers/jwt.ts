@@ -16,13 +16,9 @@ export default {
     let { token } = req.cookies;
 
     if (!token) {
-      if (req.headers.cookie) {
-        const split = req.headers.cookie.split("=");
-        token = split[1];
-      }
+      const { authorization } = req.headers;
+      token = authorization;
     }
-
-    console.log({ auth: req.headers });
 
     if (!token) {
       next(createHttpError.Unauthorized());

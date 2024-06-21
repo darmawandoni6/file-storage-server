@@ -16,12 +16,9 @@ exports.default = {
     verifyAccessToken: (req, res, next) => {
         let { token } = req.cookies;
         if (!token) {
-            if (req.headers.cookie) {
-                const split = req.headers.cookie.split("=");
-                token = split[1];
-            }
+            const { authorization } = req.headers;
+            token = authorization;
         }
-        console.log({ auth: req.headers });
         if (!token) {
             next(http_errors_1.default.Unauthorized());
             return;
