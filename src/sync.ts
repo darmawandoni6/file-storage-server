@@ -8,11 +8,7 @@ const queryInterface = db.sequelize.getQueryInterface();
 
 const addColumn = async () => {
   try {
-    await queryInterface.addColumn("storage", "email", {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: "darmawandoni6@gmail.com",
-    });
+    // add column
   } catch (error) {
     return Promise.reject(error);
   }
