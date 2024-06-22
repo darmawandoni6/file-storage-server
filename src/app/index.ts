@@ -17,7 +17,7 @@ const message = `[Server]: I am running mode ${process.env.NODE_ENV} at http://l
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173", "https://file-storage-phi.vercel.app"],
   }),
 );
 app.use(logger("dev"));
